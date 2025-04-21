@@ -1,13 +1,17 @@
-import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import sgMail from "@sendgrid/mail";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+import User from "../models/user.model.js";
 
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
-    const { handle, name, password } = req.body;
+    const { handle, name, email, password } = req.body;
 
-    if (!handle || !name || !password) {
+    if (!handle || !name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -22,12 +26,18 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Handle already exists" });
     }
 
+    const sameEmailUser = await User.findOne({ email });
+    if (sameEmailUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
       handle,
       name,
+      email,
       password: hashedPassword,
     });
 
@@ -36,6 +46,28 @@ export const signup = async (req, res) => {
       const savedUser = await newUser.save();
       const { password, ...userWithoutPassword } = savedUser._doc;
 
+      // Send welcome email using SendGrid
+      const msg = {
+        to: [email],
+        from: { email: process.env.EMAIL }, // Change to your verified sender
+        subject: "Welcome to the Reddit Clone!",
+        text: `Your account with the handle ${handle} has been created successfully!`,
+        html: `<strong>Your account with the handle ${handle} has been created successfully!</strong>`,
+      };
+
+      try {
+        await sgMail.send(msg);
+      } catch (error) {
+        try {
+          await User.deleteOne({ email });
+        } catch (error) {
+          return res
+            .status(500)
+            .json({ error: "Error deleting user after email failure" });
+        }
+
+        return res.status(500).json({ error: "Error sending email" });
+      }
       res.status(201).json({ user: userWithoutPassword });
     } else {
       res.status(400).json({ error: "Invalid user data" }); // inside model validation
@@ -48,14 +80,18 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { handle, password } = req.body;
-    if (!handle || !password) {
+    const { handle, email, password } = req.body;
+    if ((!handle && !email) || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await User.findOne({ handle });
+    let user = await User.findOne({ handle });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
