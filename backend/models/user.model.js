@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema(
       default:
         "https://res.cloudinary.com/df1tnm857/image/upload/v1732402804/qherri52fc2osvmtftbb.jpg",
     },
+    resetToken: String,
+    expireToken: Date,
     communities: [
       {
         type: mongoose.Schema.Types.ObjectId,
