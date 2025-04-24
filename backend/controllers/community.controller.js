@@ -20,6 +20,7 @@ export const createCommunity = async (req, res) => {
       return res.status(400).json({ message: "Community already exists" });
     }
 
+    // TODO: is this necessary?
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -50,6 +51,7 @@ export const createCommunity = async (req, res) => {
   }
 };
 
+// TODO: creator of community can edit description only
 export const editDescription = async (req, res) => {
   try {
     const { communityId, newDescription } = req.body;
@@ -112,6 +114,24 @@ export const followCommunity = async (req, res) => {
     }
   } catch (error) {
     console.log("Error in followCommunity controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// TODO: test this
+export const getCommunity = async (req, res) => {
+  try {
+    const { communityId } = req.body;
+    if (!communityId) {
+      return res.status(400).json({ message: "Community ID is required" });
+    }
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+    res.status(200).json({ community });
+  } catch (error) {
+    console.log("Error in getCommunity controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
