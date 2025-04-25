@@ -20,7 +20,6 @@ export const createCommunity = async (req, res) => {
       return res.status(400).json({ message: "Community already exists" });
     }
 
-    // TODO: is this necessary?
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -51,7 +50,6 @@ export const createCommunity = async (req, res) => {
   }
 };
 
-// TODO: creator of community can edit description only
 export const editDescription = async (req, res) => {
   try {
     const { communityId, newDescription } = req.body;
@@ -64,6 +62,13 @@ export const editDescription = async (req, res) => {
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
+
+    if (community.creator.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to edit this community" });
+    }
+
     community.description = newDescription;
     const updatedCommunity = await community.save();
     if (!updatedCommunity) {
@@ -83,7 +88,7 @@ export const editDescription = async (req, res) => {
 
 export const followCommunity = async (req, res) => {
   try {
-    const { communityId } = req.body;
+    const communityId = req.body?.communityId;
     if (!communityId) {
       return res.status(400).json({ message: "Community ID is required" });
     }
@@ -118,10 +123,9 @@ export const followCommunity = async (req, res) => {
   }
 };
 
-// TODO: test this
 export const getCommunity = async (req, res) => {
   try {
-    const { communityId } = req.body;
+    const communityId = req.params?.communityId;
     if (!communityId) {
       return res.status(400).json({ message: "Community ID is required" });
     }
@@ -132,6 +136,38 @@ export const getCommunity = async (req, res) => {
     res.status(200).json({ community });
   } catch (error) {
     console.log("Error in getCommunity controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const deleteCommunity = async (req, res) => {
+  try {
+    const communityId = req.params?.communityId;
+    if (!communityId) {
+      return res.status(400).json({ message: "Community ID is required" });
+    }
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+    if (community.creator.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this community" });
+    }
+    for (const memberId of community.members) {
+      const user = await User.findById(memberId);
+      if (user) {
+        user.communities = user.communities.filter(
+          (comm) => comm.toString() !== communityId.toString()
+        );
+        await user.save();
+      }
+    }
+    await Community.findByIdAndDelete(communityId);
+    res.status(200).json({ message: "Community deleted successfully" });
+  } catch (error) {
+    console.log("Error in deleteCommunity controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

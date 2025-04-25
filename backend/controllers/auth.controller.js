@@ -131,13 +131,21 @@ export const getMe = async (req, res) => {
 };
 
 export const resetPassword = async (req, res) => {
-  const { email } = req.body;
-  crypto.randomBytes(32, async (err, buffer) => {
-    if (err) {
-      console.log("Error generating token", err.message);
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-    const token = buffer.toString("hex");
+  try {
+    const { email } = req.body || {};
+    const generateResetToken = () => {
+      return new Promise((resolve, reject) => {
+        crypto.randomBytes(32, (err, buffer) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(buffer.toString("hex"));
+        });
+      });
+    };
+
+    // In the resetPassword function:
+    const token = await generateResetToken();
     if (!email) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -166,8 +174,11 @@ export const resetPassword = async (req, res) => {
     } catch (error) {
       return res.status(500).json({ error: "Error sending email" });
     }
-  });
-  res.status(200).json({ message: "check your email" });
+    return res.status(200).json({ message: "check your email" });
+  } catch (error) {
+    console.log("Error in resetPassword controller", error.message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 export const newPassword = async (req, res) => {
