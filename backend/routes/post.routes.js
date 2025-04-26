@@ -1,19 +1,21 @@
 import express from "express";
+
 import {
   createPost,
-  getPosts,
-  votePost,
+  //commentOnPost,
   deletePost,
-  editPost,
+  downVotePost,
+  upVotePost,
 } from "../controllers/post.controller.js";
+
 import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
 router.post("/create", protectRoute, createPost);
-//router.get("/getPosts", getPosts);
-//router.post("/votePost", votePost);
-//router.delete("/deletePost", deletePost);
-//router.patch("/editPost", editPost);
+router.post("/upvote/:id", protectRoute, upVotePost);
+router.post("/downvote/:id", protectRoute, downVotePost);
+//router.post("/comment/:id", protectRoute, commentOnPost);
+router.delete("/delete/:id", protectRoute, deletePost);
 
 export default router;
