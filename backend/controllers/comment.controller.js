@@ -84,7 +84,6 @@ export const deleteComment = async (req, res) => {
   }
 };
 
-// TODO: need to test with downvote
 export const upVoteComment = async (req, res) => {
   try {
     const { id: commentId } = req.params;
@@ -94,7 +93,6 @@ export const upVoteComment = async (req, res) => {
     if (!comment) {
       return res.status(404).json({ error: "Comment not found" });
     }
-    console.log(comment);
 
     const userUpVotedComment = comment.upVotes.includes(userId);
     if (userUpVotedComment) {
@@ -107,10 +105,10 @@ export const upVoteComment = async (req, res) => {
         .json({ updatedComment, message: "Comment un-up voted successfully" });
     } else {
       const userDownVotedComment = comment.downVotes.includes(userId);
+      console.log(userDownVotedComment);
       if (userDownVotedComment) {
-        await Comment.updateOne(
-          { _id: commentId },
-          { $pull: { downVotes: userId } }
+        comment.downVotes = comment.downVotes.filter(
+          (vote) => vote.toString() !== userId.toString()
         );
       }
       comment.upVotes.push(userId);
@@ -125,23 +123,22 @@ export const upVoteComment = async (req, res) => {
   }
 };
 
-// TODO: test it
 export const downVoteComment = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: commentId } = req.params;
     const userId = req.user._id;
 
-    const comment = await Comment.findById(id);
+    const comment = await Comment.findById(commentId);
     if (!comment) {
       return res.status(404).json({ error: "Comment not found" });
     }
 
     const userDownVotedComment = comment.downVotes.includes(userId);
     if (userDownVotedComment) {
-      const updatedComment = await comment.updateOne(
-        { _id: id },
-        { $pull: { downVotes: userId } }
-      );
+      await Comment.findByIdAndUpdate(commentId, {
+        $pull: { downVotes: userId },
+      });
+      const updatedComment = await Comment.findById(commentId);
       res.status(200).json({
         updatedComment,
         message: "Comment un-down voted successfully",
@@ -149,7 +146,9 @@ export const downVoteComment = async (req, res) => {
     } else {
       const userUpVotedComment = comment.upVotes.includes(userId);
       if (userUpVotedComment) {
-        await Comment.updateOne({ _id: id }, { $pull: { upVotes: userId } });
+        comment.upVotes = comment.upVotes.filter(
+          (vote) => vote.toString() !== userId.toString()
+        );
       }
       comment.downVotes.push(userId);
       await comment.save();
