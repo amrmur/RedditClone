@@ -12,10 +12,10 @@ import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
-router.post("/create", protectRoute, createPost);
+router.post("/create/:communityId", protectRoute, createPost);
 router.post("/upvote/:id", protectRoute, upVotePost);
 router.post("/downvote/:id", protectRoute, downVotePost);
 //router.post("/comment/:id", protectRoute, commentOnPost);
-router.delete("/delete/:id", protectRoute, deletePost);
+router.delete("/delete/:postId/:communityId", protectRoute, deletePost);
 
 export default router;
