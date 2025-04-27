@@ -5,6 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = async (req, res) => {
   try {
+    // TODO: add community id
     const { title, text } = req.body;
     let { img } = req.body;
     const userId = req.user._id.toString();
@@ -19,12 +20,16 @@ export const createPost = async (req, res) => {
     if (!text && !img) {
       return res.status(400).json({ error: "Text or image is required" });
     }
+    // TODO: if no community id is provided, error
+
+    // TODO: find community by id and check if it exists, error if it doesn't. Should only members be allowed to post? Talk to me about this.
 
     if (img) {
       const uploadResponse = await cloudinary.uploader.upload(img);
       img = uploadResponse.secure_url;
     }
 
+    // TODO: add community id to post model and save it here
     const newPost = new Post({
       user: userId,
       title,
@@ -44,6 +49,7 @@ export const createPost = async (req, res) => {
   }
 };
 
+// TODO: delete post from community posts array as well
 export const deletePost = async (req, res) => {
   try {
     const userId = req.user._id;

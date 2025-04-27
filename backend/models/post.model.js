@@ -7,6 +7,7 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    // TODO: add community id
     title: {
       type: String,
       required: true,
@@ -29,14 +30,12 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    /*
     comments: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",
       },
     ],
-    */
   },
   { timestamps: true }
 );

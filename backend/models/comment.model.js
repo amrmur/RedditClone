@@ -10,15 +10,10 @@ const commentSchema = new mongoose.Schema(
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     text: {
       type: String,
       required: true,
-    },
-    parentComment: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
     },
     childComments: [
       {
