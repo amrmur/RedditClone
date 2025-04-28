@@ -1,3 +1,4 @@
+/*
 import express from "express";
 import { protectRoute } from "../middleware/protectRoute.js";
 import {
@@ -11,3 +12,4 @@ router.get("/getAll", protectRoute, getNotifications);
 router.delete("deleteAll", protectRoute, deleteNotifications);
 
 export default router;
+*/

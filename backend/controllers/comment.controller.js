@@ -3,32 +3,82 @@ import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";
 import Notification from "../models/notification.model.js";
 
+// What this does:
+//   1. save comment
+//   2. save notification
+//   3. push notification to contentOwner
+//   4. push comment to post/parentComment of contentOwner
+//   5. Push comment to user
 // TODO: test notification THIS IS UNTESTED CODE
 export const createComment = async (req, res) => {
   try {
     const { postId, text, parentCommentId } = req.body;
-    const creatorId = req.user._id.toString();
+    const userId = req.user._id;
 
-    if (!postId || !text) {
-      return res.status(400).json({ error: "All fields are required" });
+    let contentOwnerId;
+    let contentType;
+
+    if (!text || !postId) {
+      return res.status(400).json({ message: "Text and postId are required" });
     }
 
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({ message: "Post not found" });
     }
+    contentOwnerId = post.user;
+    contentType = "post reply";
 
-    const user = await User.findById(creatorId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    if (parentCommentId) {
+      const parentComment = await Comment.findById(parentCommentId);
+      if (!parentComment) {
+        return res.status(404).json({ message: "Parent comment not found" });
+      }
+      contentOwnerId = parentComment.creator;
+      contentType = "comment reply";
     }
 
     const comment = new Comment({
       post: postId,
-      creator: creatorId,
+      creator: userId,
       text,
     });
 
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.comments.push(comment._id);
+    await user.save();
+
+    const contentOwnerUser = await User.findById(contentOwnerId);
+
+    const savedComment = await comment.save();
+    if (!parentCommentId) {
+      const post = await Post.findById(postId);
+      post.comments.push(savedComment._id);
+      await post.save();
+    } else {
+      const parentComment = await Comment.findById(parentCommentId);
+      parentComment.childComments.push(savedComment._id);
+      await parentComment.save();
+    }
+
+    if (contentOwnerUser && contentOwnerId.toString() !== userId.toString()) {
+      const newNotification = new Notification({
+        to: contentOwnerId,
+        from: userId,
+        type: contentType,
+      });
+      await newNotification.save();
+
+      contentOwnerUser.notifications.push(newNotification._id);
+      await contentOwnerUser.save();
+    }
+
+    res.status(201).json(savedComment);
+
+    /*
     if (!parentCommentId) {
       const postCreator = await User.findById(post.creator);
       if (postCreator) {
@@ -47,6 +97,7 @@ export const createComment = async (req, res) => {
 
       post.comments.push(comment._id);
       await post.save();
+
     } else {
       const parentComment = await Comment.findById(parentCommentId);
       if (!parentComment) {
@@ -76,9 +127,10 @@ export const createComment = async (req, res) => {
 
     user.comments.push(comment._id);
     await user.save();
-    comment.save();
+    await comment.save();
 
     res.status(201).json({ message: "Comment added successfully", comment });
+    */
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.log("Error in createComment controller:", error);
