@@ -1,7 +1,9 @@
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";
+import Notification from "../models/notification.model.js";
 
+// TODO: test notification THIS IS UNTESTED CODE
 export const createComment = async (req, res) => {
   try {
     const { postId, text, parentCommentId } = req.body;
@@ -16,11 +18,6 @@ export const createComment = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    const creator = await User.findById(creatorId);
-    if (!creator) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
     const user = await User.findById(creatorId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -33,6 +30,21 @@ export const createComment = async (req, res) => {
     });
 
     if (!parentCommentId) {
+      const postCreator = await User.findById(post.creator);
+      if (postCreator) {
+        const notification = new Notification({
+          from: creatorId,
+          to: post.creator,
+          type: "post reply",
+        });
+        const newNoti = await notification.save();
+
+        postCreator.notifications.push(newNoti._id);
+        await postCreator.save();
+      } else {
+        return res.status(404).json({ error: "Post creator not found" });
+      }
+
       post.comments.push(comment._id);
       await post.save();
     } else {
@@ -40,6 +52,24 @@ export const createComment = async (req, res) => {
       if (!parentComment) {
         return res.status(404).json({ error: "Parent comment not found" });
       }
+
+      const parentCreator = await User.findById(parentComment.creator);
+      if (!parentCreator) {
+        return res
+          .status(404)
+          .json({ error: "Parent comment creator not found" });
+      }
+
+      const noti = new Notification({
+        from: creatorId,
+        to: parentComment.creator,
+        type: "comment reply",
+      });
+      const newNoti = await noti.save();
+
+      parentCreator.notifications.push(newNoti._id);
+      await parentCreator.save();
+
       parentComment.childComments.push(comment);
       await parentComment.save();
     }
