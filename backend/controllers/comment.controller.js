@@ -9,33 +9,35 @@ import Notification from "../models/notification.model.js";
 //   3. push notification to contentOwner
 //   4. push comment to post/parentComment of contentOwner
 //   5. Push comment to user
-// TODO: test notification THIS IS UNTESTED CODE
+
 export const createComment = async (req, res) => {
   try {
-    const { postId, text, parentCommentId } = req.body;
+    const { text, parentCommentId } = req.body;
+    let { postId } = req.body;
     const userId = req.user._id;
 
     let contentOwnerId;
     let contentType;
 
-    if (!text || !postId) {
-      return res.status(400).json({ message: "Text and postId are required" });
+    if (!text) {
+      return res.status(400).json({ message: "Text is required" });
     }
-
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-    contentOwnerId = post.user;
-    contentType = "post reply";
 
     if (parentCommentId) {
       const parentComment = await Comment.findById(parentCommentId);
       if (!parentComment) {
         return res.status(404).json({ message: "Parent comment not found" });
       }
+      postId = parentComment.post;
       contentOwnerId = parentComment.creator;
       contentType = "comment reply";
+    } else {
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      contentType = "post reply";
+      contentOwnerId = post.user;
     }
 
     const comment = new Comment({
@@ -44,16 +46,15 @@ export const createComment = async (req, res) => {
       text,
     });
 
+    const savedComment = await comment.save();
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    user.comments.push(comment._id);
+    user.comments.push(savedComment._id);
     await user.save();
 
-    const contentOwnerUser = await User.findById(contentOwnerId);
-
-    const savedComment = await comment.save();
     if (!parentCommentId) {
       const post = await Post.findById(postId);
       post.comments.push(savedComment._id);
@@ -64,6 +65,7 @@ export const createComment = async (req, res) => {
       await parentComment.save();
     }
 
+    const contentOwnerUser = await User.findById(contentOwnerId);
     if (contentOwnerUser && contentOwnerId.toString() !== userId.toString()) {
       const newNotification = new Notification({
         to: contentOwnerId,
@@ -76,61 +78,7 @@ export const createComment = async (req, res) => {
       await contentOwnerUser.save();
     }
 
-    res.status(201).json(savedComment);
-
-    /*
-    if (!parentCommentId) {
-      const postCreator = await User.findById(post.creator);
-      if (postCreator) {
-        const notification = new Notification({
-          from: creatorId,
-          to: post.creator,
-          type: "post reply",
-        });
-        const newNoti = await notification.save();
-
-        postCreator.notifications.push(newNoti._id);
-        await postCreator.save();
-      } else {
-        return res.status(404).json({ error: "Post creator not found" });
-      }
-
-      post.comments.push(comment._id);
-      await post.save();
-
-    } else {
-      const parentComment = await Comment.findById(parentCommentId);
-      if (!parentComment) {
-        return res.status(404).json({ error: "Parent comment not found" });
-      }
-
-      const parentCreator = await User.findById(parentComment.creator);
-      if (!parentCreator) {
-        return res
-          .status(404)
-          .json({ error: "Parent comment creator not found" });
-      }
-
-      const noti = new Notification({
-        from: creatorId,
-        to: parentComment.creator,
-        type: "comment reply",
-      });
-      const newNoti = await noti.save();
-
-      parentCreator.notifications.push(newNoti._id);
-      await parentCreator.save();
-
-      parentComment.childComments.push(comment);
-      await parentComment.save();
-    }
-
-    user.comments.push(comment._id);
-    await user.save();
-    await comment.save();
-
-    res.status(201).json({ message: "Comment added successfully", comment });
-    */
+    return res.status(201).json(savedComment);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.log("Error in createComment controller:", error);
@@ -243,3 +191,57 @@ export const downVoteComment = async (req, res) => {
     console.log("Error in downVoteComment controller:", error);
   }
 };
+
+/*
+    if (!parentCommentId) {
+      const postCreator = await User.findById(post.creator);
+      if (postCreator) {
+        const notification = new Notification({
+          from: creatorId,
+          to: post.creator,
+          type: "post reply",
+        });
+        const newNoti = await notification.save();
+
+        postCreator.notifications.push(newNoti._id);
+        await postCreator.save();
+      } else {
+        return res.status(404).json({ error: "Post creator not found" });
+      }
+
+      post.comments.push(comment._id);
+      await post.save();
+
+    } else {
+      const parentComment = await Comment.findById(parentCommentId);
+      if (!parentComment) {
+        return res.status(404).json({ error: "Parent comment not found" });
+      }
+
+      const parentCreator = await User.findById(parentComment.creator);
+      if (!parentCreator) {
+        return res
+          .status(404)
+          .json({ error: "Parent comment creator not found" });
+      }
+
+      const noti = new Notification({
+        from: creatorId,
+        to: parentComment.creator,
+        type: "comment reply",
+      });
+      const newNoti = await noti.save();
+
+      parentCreator.notifications.push(newNoti._id);
+      await parentCreator.save();
+
+      parentComment.childComments.push(comment);
+      await parentComment.save();
+    }
+
+    user.comments.push(comment._id);
+    await user.save();
+    await comment.save();
+
+    res.status(201).json({ message: "Comment added successfully", comment });
+    */
