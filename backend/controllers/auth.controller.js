@@ -81,14 +81,14 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { handle, email, password } = req.body;
-    if ((!handle && !email) || !password) {
+    const { handleOrEmail, password } = req.body;
+    if (!handleOrEmail || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    let user = await User.findOne({ handle });
+    let user = await User.findOne({ handle: handleOrEmail });
     if (!user) {
-      user = await User.findOne({ email });
+      user = await User.findOne({ email: handleOrEmail });
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
