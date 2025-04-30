@@ -9,7 +9,7 @@ import postRoutes from "./routes/post.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 //import notificationRoutes from "./routes/notification.routes.js";
-
+//
 import connectMongoDb from "./db/connectMongoDb.js";
 
 const PORT = process.env.PORT || 3000;
