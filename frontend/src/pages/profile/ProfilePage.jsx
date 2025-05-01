@@ -32,7 +32,6 @@ const ProfilePage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        state === "coverImg" && setCoverImg(reader.result);
         state === "profileImg" && setProfileImg(reader.result);
       };
       reader.readAsDataURL(file);
