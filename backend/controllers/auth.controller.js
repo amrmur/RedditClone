@@ -13,23 +13,23 @@ export const signup = async (req, res) => {
     const { handle, name, email, password } = req.body;
 
     if (!handle || !name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: "Password must be at least 6 characters long" });
+        .json({ error: "Password must be at least 6 characters long" });
     }
 
     const sameHandleUser = await User.findOne({ handle });
     if (sameHandleUser) {
-      return res.status(400).json({ message: "Handle already exists" });
+      return res.status(400).json({ error: "Handle already exists" });
     }
 
     const sameEmailUser = await User.findOne({ email });
     if (sameEmailUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -83,7 +83,7 @@ export const login = async (req, res) => {
   try {
     const { handleOrEmail, password } = req.body;
     if (!handleOrEmail || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     let user = await User.findOne({ handle: handleOrEmail });
@@ -91,13 +91,13 @@ export const login = async (req, res) => {
       user = await User.findOne({ email: handleOrEmail });
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ error: "User not found" });
       }
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(400).json({ error: "Invalid password" });
     }
 
     generateTokenAndSetCookie(user._id, res);

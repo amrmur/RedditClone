@@ -7,6 +7,7 @@ import { useLocation } from "react-router-dom";
 import CommunityPage from "./pages/community/CommunityPage";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const location = useLocation();
@@ -23,6 +24,7 @@ function App() {
         <Route path="/notifications" element={<NotificationPage />} />
         <Route path="/profile/:handle" element={<ProfilePage />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }
