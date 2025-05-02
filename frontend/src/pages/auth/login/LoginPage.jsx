@@ -5,14 +5,15 @@ import RedditImage from "../../../components/logo/Reddit";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
-import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     handleOrEmail: "",
     password: "",
   });
+
+  const queryClient = useQueryClient();
 
   const {
     mutate: loginMutation,
@@ -42,7 +43,8 @@ const LoginPage = () => {
       }
     },
     onSuccess: () => {
-      toast.success("Successfully logged in!");
+      // auth user data rn is invalid and needs to be refetched
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
 

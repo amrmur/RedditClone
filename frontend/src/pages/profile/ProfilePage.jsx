@@ -10,6 +10,7 @@ import { POSTS } from "../../utils/db/dummy";
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { MdEdit } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
 
 const ProfilePage = () => {
   const [profileImg, setProfileImg] = useState(null);
