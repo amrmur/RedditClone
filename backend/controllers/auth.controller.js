@@ -10,6 +10,8 @@ import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
+    console.log("req.body", req.body);
+
     const { handle, name, email, password } = req.body;
 
     if (!handle || !name || !email || !password) {

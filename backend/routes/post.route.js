@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   createPost,
-  //commentOnPost,
+  getPost,
   deletePost,
   downVotePost,
   upVotePost,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/create/:communityId", protectRoute, createPost);
 router.post("/upvote/:id", protectRoute, upVotePost);
 router.post("/downvote/:id", protectRoute, downVotePost);
-//router.post("/comment/:id", protectRoute, commentOnPost);
+router.get("/:id", protectRoute, getPost);
 router.delete("/delete/:postId/:communityId", protectRoute, deletePost);
 
 export default router;
