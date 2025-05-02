@@ -10,7 +10,7 @@ import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
-router.post("/createCommunity", protectRoute, createCommunity);
+router.post("/create", protectRoute, createCommunity);
 router.patch("/editDescription", protectRoute, editDescription);
 router.put("/followCommunity", protectRoute, followCommunity);
 router.get("/getCommunity/:communityId", protectRoute, getCommunity);

@@ -6,23 +6,23 @@ export const createCommunity = async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     if (name.toLowerCase() !== name) {
       return res
         .status(400)
-        .json({ message: "Community name must be lowercase" });
+        .json({ error: "Community name must be lowercase" });
     }
 
     const existingCommunity = await Community.findOne({ handle: name });
     if (existingCommunity) {
-      return res.status(400).json({ message: "Community already exists" });
+      return res.status(400).json({ error: "Community already exists" });
     }
 
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     const newCommunity = new Community({
@@ -34,7 +34,7 @@ export const createCommunity = async (req, res) => {
 
     const savedCommunity = await newCommunity.save();
     if (!savedCommunity) {
-      return res.status(500).json({ message: "Failed to create community" });
+      return res.status(500).json({ error: "Failed to create community" });
     }
 
     user.communities.push(savedCommunity._id);
