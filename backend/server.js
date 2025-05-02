@@ -3,12 +3,12 @@ import "./config.js";
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import authRoutes from "./routes/auth.routes.js";
-import communityRoutes from "./routes/community.routes.js";
-import postRoutes from "./routes/post.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import commentRoutes from "./routes/comment.routes.js";
-//import notificationRoutes from "./routes/notification.routes.js";
+import authRoutes from "./routes/auth.route.js";
+import communityRoutes from "./routes/community.route.js";
+import postRoutes from "./routes/post.route.js";
+import userRoutes from "./routes/user.route.js";
+import commentRoutes from "./routes/comment.route.js";
+//import notificationRoutes from "./route/notification.routes.js";
 //
 import connectMongoDb from "./db/connectMongoDb.js";
 
@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/community", communityRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comment", commentRoutes);
 //app.use("/api/notification", notificationRoutes);

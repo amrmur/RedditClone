@@ -159,3 +159,22 @@ export const upVotePost = async (req, res) => {
     console.log("Error in upVotePost controller:", error);
   }
 };
+
+export const getPost = async (req, res) => {
+  try {
+    const { id: postId } = req.params;
+    const post = await Post.findById(postId)
+      .populate("user")
+      .populate("community")
+      .populate("comments");
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.log("Error in getPost controller:", error);
+  }
+};

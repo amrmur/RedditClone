@@ -171,3 +171,17 @@ export const deleteCommunity = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getCommunityPosts = async (req, res) => {
+  const communityId = req.params.id;
+  try {
+    const community = await User.findById(communityId).populate("posts");
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+    res.status(200).json({ posts: community.posts });
+  } catch (error) {
+    console.log("Error in CommunityPosts controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
