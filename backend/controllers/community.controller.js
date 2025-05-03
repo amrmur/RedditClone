@@ -173,9 +173,10 @@ export const deleteCommunity = async (req, res) => {
 };
 
 export const getCommunityPosts = async (req, res) => {
-  const communityId = req.params.id;
   try {
-    const community = await User.findById(communityId).populate("posts");
+    const communityId = req.params.id;
+    console.log("Community ID:", communityId);
+    const community = await Community.findById(communityId).populate("posts");
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }

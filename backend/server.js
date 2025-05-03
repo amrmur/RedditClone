@@ -8,8 +8,8 @@ import communityRoutes from "./routes/community.route.js";
 import postRoutes from "./routes/post.route.js";
 import userRoutes from "./routes/user.route.js";
 import commentRoutes from "./routes/comment.route.js";
-//import notificationRoutes from "./route/notification.routes.js";
-//
+import notificationRoutes from "./routes/notification.route.js";
+
 import connectMongoDb from "./db/connectMongoDb.js";
 
 const PORT = process.env.PORT || 5000;
@@ -25,7 +25,7 @@ app.use("/api/community", communityRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comment", commentRoutes);
-//app.use("/api/notification", notificationRoutes);
+app.use("/api/notification", notificationRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
