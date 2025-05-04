@@ -24,14 +24,38 @@ const HomePage = () => {
     return data;
   };
 
+  const fetchUserResults = async (query) => {
+    if (!query) return [];
+    const res = await fetch("api/user/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to search communities");
+    }
+    return data;
+  };
+
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const inputRef = useRef();
 
   // Debounce logic can be added for real-world apps
-  const { data: results = [], isFetching } = useQuery({
-    queryKey: ["search", search],
-    queryFn: () => fetchResults(search),
+  const { data: communityResults = [], isFetching: isFetchingCommunities } =
+    useQuery({
+      queryKey: ["communitySearch", search],
+      queryFn: () => fetchResults(search),
+      enabled: !!search,
+    });
+
+  const { data: userResults = [], isFetching: isFetchingUsers } = useQuery({
+    queryKey: ["userSearch", search],
+    queryFn: () => fetchUserResults(search),
     enabled: !!search,
   });
   return (
@@ -57,15 +81,32 @@ const HomePage = () => {
             />
             {open && search && (
               <ul className="dropdown-content menu bg-base-100 rounded-box z-10 w-full mt-2 p-2 shadow-sm absolute left-0">
-                {isFetching && <li className="text-center">Loading...</li>}
+                {isFetchingCommunities && (
+                  <li className="text-center">Loading...</li>
+                )}
                 <li className="text-center font-bold">Communities</li>
-                {!isFetching && results.length === 0 && (
+                {!isFetchingCommunities && communityResults.length === 0 && (
                   <li className="text-center text-gray-400">No results</li>
                 )}
-                {results.map((item) => (
+                {communityResults.map((item) => (
                   <li key={item._id}>
                     <a
                       href={`/community/${item.handle}`}
+                      onMouseDown={(e) => e.preventDefault()} // Prevent input blur
+                    >
+                      {item.handle}
+                    </a>
+                  </li>
+                ))}
+                {isFetchingUsers && <li className="text-center">Loading...</li>}
+                <li className="text-center font-bold">Users</li>
+                {!isFetchingUsers && userResults.length === 0 && (
+                  <li className="text-center text-gray-400">No results</li>
+                )}
+                {userResults.map((item) => (
+                  <li key={item._id}>
+                    <a
+                      href={`/profile/${item.handle}`}
                       onMouseDown={(e) => e.preventDefault()} // Prevent input blur
                     >
                       {item.handle}

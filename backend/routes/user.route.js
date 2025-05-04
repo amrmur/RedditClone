@@ -8,6 +8,7 @@ import {
   getUserPosts,
   getUserNotifications,
   deleteUserNotifications,
+  searchUsers,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.get("/posts/:id", protectRoute, getUserPosts);
 router.get("/notifications", protectRoute, getUserNotifications);
 router.delete("/deleteNotifications", protectRoute, deleteUserNotifications);
 router.put("/update", protectRoute, updateUserProfile);
+router.post("/search", protectRoute, searchUsers);
 
 export default router;
