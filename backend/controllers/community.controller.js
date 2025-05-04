@@ -125,11 +125,12 @@ export const followCommunity = async (req, res) => {
 
 export const getCommunity = async (req, res) => {
   try {
-    const communityId = req.params?.communityId;
-    if (!communityId) {
+    const handle = req.params.handle.toLowerCase();
+    if (!handle) {
       return res.status(400).json({ message: "Community ID is required" });
     }
-    const community = await Community.findById(communityId);
+    const community = await Community.findOne({ handle });
+    console.log("Community:", handle);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }

@@ -62,7 +62,7 @@ function App() {
           element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
         <Route
-          path="/community/:communityName"
+          path="/community/:handle"
           element={authUser ? <CommunityPage /> : <Navigate to="/login" />}
         />
         <Route
