@@ -58,6 +58,7 @@ const HomePage = () => {
             {open && search && (
               <ul className="dropdown-content menu bg-base-100 rounded-box z-10 w-full mt-2 p-2 shadow-sm absolute left-0">
                 {isFetching && <li className="text-center">Loading...</li>}
+                <li className="text-center font-bold">Communities</li>
                 {!isFetching && results.length === 0 && (
                   <li className="text-center text-gray-400">No results</li>
                 )}
