@@ -186,3 +186,23 @@ export const getCommunityPosts = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const searchCommunities = async (req, res) => {
+  try {
+    const query = req.body?.query;
+    if (query?.length === 0) {
+      return res.status(200).json([]);
+    }
+    if (!query) {
+      return res.status(400).json({ error: "Query is required" });
+    }
+    let userPattern = new RegExp(query, "i");
+    const results = await Community.find({
+      handle: { $regex: userPattern },
+    }).select("_id handle");
+    return res.status(200).json(results);
+  } catch (error) {
+    console.log("Error in searchCommunities controller", error.message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

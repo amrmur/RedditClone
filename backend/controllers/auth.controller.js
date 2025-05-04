@@ -10,8 +10,6 @@ import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
-    console.log("req.body", req.body);
-
     const { handle, name, email, password } = req.body;
 
     if (!handle || !name || !email || !password) {
@@ -105,7 +103,7 @@ export const login = async (req, res) => {
     generateTokenAndSetCookie(user._id, res);
     const { password: userPassword, ...userWithoutPassword } = user._doc;
 
-    res.status(200).json({ user: userWithoutPassword });
+    return res.status(200).json({ user: userWithoutPassword });
   } catch (error) {
     console.log("Error in login controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });

@@ -6,6 +6,7 @@ import {
   followCommunity,
   getCommunity,
   getCommunityPosts,
+  searchCommunities,
 } from "../controllers/community.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
@@ -17,5 +18,6 @@ router.put("/follow", protectRoute, followCommunity);
 router.get("/get/:communityId", protectRoute, getCommunity);
 router.get("/getPosts/:id", protectRoute, getCommunityPosts);
 router.delete("/delete/:communityId", protectRoute, deleteCommunity);
+router.post("/search", protectRoute, searchCommunities);
 
 export default router;
