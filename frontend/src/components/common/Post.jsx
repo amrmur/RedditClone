@@ -5,6 +5,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -13,7 +14,7 @@ const Post = ({ post }) => {
 
   const isMyPost = true;
 
-  const formattedDate = "1h";
+  const formattedDate = formatPostDate(post.createdAt);
 
   const isCommenting = false;
 
@@ -30,20 +31,20 @@ const Post = ({ post }) => {
       <div className="flex gap-2 items-start p-4 border-b border-gray-700">
         <div className="avatar">
           <Link
-            to={`/profile/${postOwner.username}`}
+            to={`/profile/${postOwner.handle}`}
             className="w-8 rounded-full overflow-hidden"
           >
-            <img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+            <img src={postOwner.avatar || "/avatar-placeholder.png"} />
           </Link>
         </div>
         <div className="flex flex-col flex-1">
           <div className="flex gap-2 items-center">
-            <Link to={`/profile/${postOwner.username}`} className="font-bold">
-              {postOwner.fullName}
+            <Link to={`/profile/${postOwner.handle}`} className="font-bold">
+              {postOwner.name}
             </Link>
             <span className="text-gray-700 flex gap-1 text-sm">
-              <Link to={`/profile/${postOwner.username}`}>
-                @{postOwner.username}
+              <Link to={`/profile/${postOwner.handle}`}>
+                @{postOwner.handle}
               </Link>
               <span>·</span>
               <span>{formattedDate}</span>
@@ -83,6 +84,7 @@ const Post = ({ post }) => {
                 </span>
               </div>
               {/* We're using Modal Component from DaisyUI */}
+              {/*}
               <dialog
                 id={`comments_modal${post._id}`}
                 className="modal border-none outline-none"
@@ -144,6 +146,7 @@ const Post = ({ post }) => {
                   <button className="outline-none">close</button>
                 </form>
               </dialog>
+              */}
               <div className="flex gap-1 items-center group cursor-pointer">
                 <BiRepost className="w-6 h-6  text-slate-500 group-hover:text-green-500" />
                 <span className="text-sm text-slate-500 group-hover:text-green-500">
@@ -166,7 +169,7 @@ const Post = ({ post }) => {
                     isLiked ? "text-pink-500" : ""
                   }`}
                 >
-                  {post.likes.length}
+                  {post.upVotes.length - post.downVotes.length}
                 </span>
               </div>
             </div>

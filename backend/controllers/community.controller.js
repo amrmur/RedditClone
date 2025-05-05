@@ -129,8 +129,15 @@ export const getCommunity = async (req, res) => {
     if (!handle) {
       return res.status(400).json({ message: "Community ID is required" });
     }
-    const community = await Community.findOne({ handle });
-    console.log("Community:", handle);
+    const community = await Community.findOne({ handle }).populate({
+      path: "posts", // 1. Populate the 'posts' array in the Community document
+      populate: {
+        path: "user", // 2. Within each populated post, populate the 'user' field
+        model: "User", // Specify the model to use for the 'user' field (good practice)
+        select: "handle name", // 3. Select fields from the User document
+      },
+    });
+
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
@@ -169,21 +176,6 @@ export const deleteCommunity = async (req, res) => {
     res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
     console.log("Error in deleteCommunity controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-export const getCommunityPosts = async (req, res) => {
-  try {
-    const communityId = req.params.id;
-    console.log("Community ID:", communityId);
-    const community = await Community.findById(communityId).populate("posts");
-    if (!community) {
-      return res.status(404).json({ message: "Community not found" });
-    }
-    res.status(200).json({ posts: community.posts });
-  } catch (error) {
-    console.log("Error in CommunityPosts controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
