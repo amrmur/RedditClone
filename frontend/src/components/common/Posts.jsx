@@ -1,5 +1,4 @@
 import Post from "./Post";
-import PostTest from "./PostTest";
 import PostSkeleton from "../skeletons/PostSkeleton";
 import { POSTS } from "../../utils/db/dummy";
 
