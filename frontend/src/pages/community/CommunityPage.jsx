@@ -48,7 +48,7 @@ const CommunityPage = () => {
 
       <div className="divider"></div>
 
-      <CreatePost />
+      <CreatePost communityId={community._id} />
       <Posts posts={community.posts} />
     </div>
   );
