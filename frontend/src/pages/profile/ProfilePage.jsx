@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
@@ -39,7 +39,12 @@ const ProfilePage = () => {
     },
   });
 
-  const { data: posts, isLoading: isPostsLoading } = useQuery({
+  const {
+    data: posts,
+    isLoading: isPostsLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
     queryKey: ["profilePosts"],
     queryFn: async () => {
       try {
@@ -57,6 +62,11 @@ const ProfilePage = () => {
       }
     },
   });
+
+  useEffect(() => {
+    refetch();
+    console.log("Refetching posts...");
+  }, [user, refetch]);
 
   const userCreatedDate = formatMemberSinceDate(user?.createdAt);
 
