@@ -162,7 +162,7 @@ export const upVotePost = async (req, res) => {
 
 export const getPost = async (req, res) => {
   try {
-    const { id: postId } = req.params;
+    const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate("user")
       .populate("community")
@@ -176,5 +176,18 @@ export const getPost = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.log("Error in getPost controller:", error);
+  }
+};
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("community", "handle")
+      .populate("user", "handle");
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+    console.log("Error in getAllPosts controller:", error);
   }
 };

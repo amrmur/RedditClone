@@ -3,6 +3,7 @@ import PostSkeleton from "../skeletons/PostSkeleton";
 import { POSTS } from "../../utils/db/dummy";
 
 const Posts = ({ posts }) => {
+  console.log("Posts in posts", posts);
   return (
     <>
       {posts?.length === 0 && (

@@ -1,6 +1,10 @@
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
+import { BiUpvote } from "react-icons/bi";
+import { BiSolidUpvote } from "react-icons/bi";
+import { BiDownvote } from "react-icons/bi";
+import { BiSolidDownvote } from "react-icons/bi";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
@@ -10,7 +14,8 @@ import { formatPostDate } from "../../utils/date";
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.user;
-  const isLiked = false;
+  const isDownVote = true;
+  const isUpVote = true;
 
   const isMyPost = true;
 
@@ -59,7 +64,7 @@ const Post = ({ post }) => {
             )}
           </div>
           <div className="flex flex-col gap-3 overflow-hidden">
-            <span>{post.text}</span>
+            <span>{post.title}</span>
             {post.img && (
               <img
                 src={post.img}
@@ -146,31 +151,34 @@ const Post = ({ post }) => {
                   <button className="outline-none">close</button>
                 </form>
               </dialog>
-              */}
+              
               <div className="flex gap-1 items-center group cursor-pointer">
                 <BiRepost className="w-6 h-6  text-slate-500 group-hover:text-green-500" />
                 <span className="text-sm text-slate-500 group-hover:text-green-500">
                   0
                 </span>
               </div>
+              */}
               <div
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
               >
-                {!isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
+                {!isUpVote && (
+                  <BiUpvote className="w-4 h-4 cursor-pointer text-slate-500 hover:text-pink-500" />
                 )}
-                {isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
+                {isUpVote && (
+                  <BiSolidUpvote className="w-4 h-4 cursor-pointer text-pink-500 " />
                 )}
 
-                <span
-                  className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-                    isLiked ? "text-pink-500" : ""
-                  }`}
-                >
+                <span className="text-sm text-slate-500">
                   {post.upVotes.length - post.downVotes.length}
                 </span>
+                {!isDownVote && (
+                  <BiDownvote className="w-4 h-4 cursor-pointer text-slate-500 hover:text-blue-500" />
+                )}
+                {isDownVote && (
+                  <BiSolidDownvote className="w-4 h-4 cursor-pointer text-blue-500" />
+                )}
               </div>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">

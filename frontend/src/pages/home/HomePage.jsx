@@ -3,7 +3,7 @@ import { FaSearch } from "react-icons/fa";
 import Posts from "../../components/common/Posts";
 import CreatePost from "../community/CreatePost";
 import CreateCommunityModal from "./CreateCommunityModal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const HomePage = () => {
@@ -58,6 +58,38 @@ const HomePage = () => {
     queryFn: () => fetchUserResults(search),
     enabled: !!search,
   });
+
+  const {
+    data: posts,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/post/posts");
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error || data?.message || "Something went wrong"
+          );
+        }
+
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  });
+
+  if (isLoading) return <p className="p-4">Loading posts...</p>;
+  if (isError || !posts) return <p className="p-4">Posts not found.</p>;
+  console.log("posts:", posts);
+
   return (
     <>
       <div className="flex-[4_4_0] mr-auto border-r border-gray-700 min-h-screen">
@@ -120,7 +152,7 @@ const HomePage = () => {
         </div>
 
         {/* POSTS */}
-        <Posts />
+        {!isLoading && !isRefetching && posts && <Posts posts={posts} />}
       </div>
     </>
   );
