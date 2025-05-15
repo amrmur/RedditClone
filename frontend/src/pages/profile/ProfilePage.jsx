@@ -39,6 +39,25 @@ const ProfilePage = () => {
     },
   });
 
+  const { data: posts, isLoading: isPostsLoading } = useQuery({
+    queryKey: ["profilePosts"],
+    queryFn: async () => {
+      try {
+        const res = await fetch(`/api/user/posts/${user._id}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error || data?.message || "Something went wrong"
+          );
+        }
+        return data.posts;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  });
+
   const userCreatedDate = formatMemberSinceDate(user?.createdAt);
 
   const handleImgChange = (e, state) => {
@@ -158,7 +177,7 @@ const ProfilePage = () => {
             </>
           )}
 
-          <Posts />
+          {!isPostsLoading && posts && <Posts posts={posts} />}
         </div>
       </div>
     </>

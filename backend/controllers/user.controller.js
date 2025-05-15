@@ -119,7 +119,13 @@ export const getUserCommunities = async (req, res) => {
 export const getUserPosts = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await User.findById(userId).populate("posts");
+    const user = await User.findById(userId).populate({
+      path: "posts",
+      populate: {
+        path: "user",
+        select: "avatar handle",
+      },
+    });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
