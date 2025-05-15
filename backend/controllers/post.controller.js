@@ -183,7 +183,7 @@ export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("community", "handle")
-      .populate("user", "handle");
+      .populate("user", "handle avatar");
 
     res.status(200).json(posts);
   } catch (error) {
